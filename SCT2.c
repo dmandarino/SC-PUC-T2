@@ -73,7 +73,7 @@ int main(void)
     scanf("%d", &politic);
     //escolher politica de alocacao de memoria
     while(qtd_processos != 0){
-        if(TEMPO_TOTAL% 5 == 0){
+        if(TEMPO_TOTAL% 10 == 0){
             
             if(politic == 1){
                 printf("\n\n");
