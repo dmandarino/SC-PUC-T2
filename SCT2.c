@@ -122,7 +122,7 @@ int main(void)
                 pAux = Prontos;
             }
             
-            printf("\n\n=============================Uso de Processos na Memoria:=================================");
+            printf("=============================Uso de Processos na Memoria:=================================\n\n\tMemoria: ");
             for(i=0; i<16; i++)
                 printf("[%d]", memoria_global[i]);
             printf("\n\n");
@@ -145,8 +145,8 @@ int main(void)
         if(Prontos == NULL && Execucao == NULL && Bloqueados == NULL){
             printf("\n\n===========================================================================================");
             printf("\n\nTodos os processos terminaram.\n\n");
-            printf("TEMPO TOTAL:%d\n", TEMPO_TOTAL);
-            printf("===========================================================================================\n");
+            printf("TEMPO TOTAL:%d\n\n", TEMPO_TOTAL);
+            printf("===========================================================================================\n\n");
             break;
         }
     }
@@ -290,7 +290,7 @@ void Tempo_Processos(Processo * p)
 {
     Processo * temp = p;
     while(temp != NULL){
-        printf("numero processo:%d  tempo restante:%d\n", temp->num_processo, temp->t->time);
+        printf("\tnumero processo:%d  tempo restante:%d\n", temp->num_processo, temp->t->time);
         temp = temp->prox;
     }
     return;
@@ -552,7 +552,7 @@ void Verifica_Tarefa_Lista( Processo * p)
         Prontos = Prontos->prox;
     else
         temp1->prox = temp2->prox;
-    printf("\n\nProcesso %d terminou\n\n",temp2->num_processo);
+    printf("\n\n-----------Processo %d terminou-----------",temp2->num_processo);
     free(temp2);
     qtd_processos--;
     return;
