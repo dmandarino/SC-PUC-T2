@@ -68,15 +68,18 @@ int main(void)
     Prontos = Cria_Processo_Lista(Prontos);
     pAux = Prontos;
     Inicializa_Memoria();
-    printf("Escolher Politica de Alocacao de Memoria:\n1-FIRST FIT\n2-NEXT FIT\n3-BEST FIT\n4-WORST FIT\n");
-    
+    printf("\n\n===========================================================================================\n\n");
+    printf("Escolha uma das Politicas de Alocacao de Memoria:\n\n\t1-FIRST FIT\n\t2-NEXT FIT\n\t3-BEST FIT\n\t4-WORST FIT\n\n");
+   
+    printf("\tDigite a Politica Escolhida: ");
     scanf("%d", &politic);
+    printf("\n\n================================COMECANDO OS PROCESSOS=====================================");
+    
     //escolher politica de alocacao de memoria
     while(qtd_processos != 0){
         if(TEMPO_TOTAL% 10 == 0){
-            
+            printf("\n\n");
             if(politic == 1){
-                printf("\n\n");
                 if(strcmp(pAux->t->tag, "exec")==0)
                     while(Aloca_Processo_FirstFit(Prontos)== -1)
                         Desaloca_Processo( Execucao);
@@ -85,7 +88,6 @@ int main(void)
                 pAux = Prontos;
             }
             else if(politic == 2){
-                printf("\n\n");
                 if(strcmp(pAux->t->tag, "exec")==0){
                     while(Aloca_Processo_NextFit(Prontos)== -1){
                         if(Aloca_Processo_NextFit(Prontos)!=-1)
@@ -99,7 +101,6 @@ int main(void)
                 pAux = Prontos;
             }
             else if(politic == 3){
-                printf("\n\n");
                 if(strcmp(pAux->t->tag, "exec")==0)
                     while(Aloca_Processo_BestFit(Prontos)== -1)
                         Desaloca_Processo( Execucao);
@@ -111,7 +112,6 @@ int main(void)
             }
             
             else if(politic == 4){
-                printf("\n\n");
                 if(strcmp(pAux->t->tag, "exec")==0)
                     while(Aloca_Processo_WorstFit(Prontos)== -1)
                         Desaloca_Processo( Execucao);
@@ -122,27 +122,31 @@ int main(void)
                 pAux = Prontos;
             }
             
-        }
-        if(TEMPO_TOTAL%10 == 0){
-            printf("processos em execucao na memoria:\n");
+            printf("\n\n=============================Uso de Processos na Memoria:=================================");
             for(i=0; i<16; i++)
                 printf("[%d]", memoria_global[i]);
             printf("\n\n");
+            
+            
+            printf("\nProcessos em Execucao\n\n");
+            Tempo_Processos( Execucao);
+            printf("\nProcessos Prontos\n\n");
+            Tempo_Processos(Prontos);
+            printf("\nProcessos Bloqueados\n\n");
+            Tempo_Processos( Bloqueados);
         }
+        
         Reduz_Tempo_Execucao( Execucao);
         Reduz_Tempo_Bloqueio( Bloqueados);
         Verifica_Tarefa_Lista(Prontos);
-        printf("\nProcessos em Execucao\n\n");
-        Tempo_Processos( Execucao);
-        printf("\nProcessos Prontos\n\n");
-        Tempo_Processos(Prontos);
-        printf("\nProcessos Bloqueados\n\n");
-        Tempo_Processos( Bloqueados);
-        printf("TEMPO TOTAL:%d\n -----------------------\n", TEMPO_TOTAL);
+       
         TEMPO_TOTAL++;
         pAux = Prontos;
         if(Prontos == NULL && Execucao == NULL && Bloqueados == NULL){
-            printf("Todos os processos terminaram.\n\n");
+            printf("\n\n===========================================================================================");
+            printf("\n\nTodos os processos terminaram.\n\n");
+            printf("TEMPO TOTAL:%d\n", TEMPO_TOTAL);
+            printf("===========================================================================================\n");
             break;
         }
     }
@@ -160,15 +164,15 @@ Processo * Cria_Processo_Lista(Processo * p)
     if(f == NULL)
         exit(0);
     
-    int qtd;
+    int qtdProcessosTxt;
     
-    fscanf(f, "%d", &qtd);
+    fscanf(f, "%d", &qtdProcessosTxt);
     
-    while(qtd > 0){
-        
+    qtd_processos = qtdProcessosTxt;
+    
+    while(qtdProcessosTxt > 0){
         fscanf(f, "%d %d %d", &proc, &mem, &ent);
         
-        qtd_processos++;
         novo = (Processo *) malloc (sizeof(Processo));
         novo->tempo_permanencia = 0;
         novo->num_processo = proc;
@@ -182,9 +186,8 @@ Processo * Cria_Processo_Lista(Processo * p)
             ent--;
         }
         p=novo;
-        qtd_processos++;
-        
-        qtd--;
+
+        qtdProcessosTxt--;
     }
     return p;
 }
@@ -290,7 +293,6 @@ void Tempo_Processos(Processo * p)
         printf("numero processo:%d  tempo restante:%d\n", temp->num_processo, temp->t->time);
         temp = temp->prox;
     }
-    puts("\n");
     return;
 }
 
