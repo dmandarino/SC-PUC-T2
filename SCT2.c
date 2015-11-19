@@ -189,8 +189,11 @@ Processo * Cria_Processo_Lista(Processo * p)
     qtd_processos = qtdProcessosTxt;
     
     while(qtdProcessosTxt > 0){
+        
         fscanf(f, "%d %d", &proc, &mem);
         fscanf(f, "%d", &ent);
+        
+        printf("%d", proc);
         
         novo = (Processo *) malloc (sizeof(Processo));
         novo->tempo_permanencia = 0;
@@ -341,7 +344,7 @@ void Tempo_Processos(Processo * p)
 {
     Processo * temp = p;
     while(temp != NULL){
-        printf("\tnumero processo: %d  tempo restante: %d\n", temp->num_processo, temp->t->time);
+        printf("\tProcesso #%d  -  Tempo Restante: %d UT\n", temp->num_processo, temp->t->time);
         temp = temp->prox;
     }
     return;
