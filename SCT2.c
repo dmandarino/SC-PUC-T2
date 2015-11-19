@@ -76,8 +76,8 @@ void Desaloca_Processo(Processo * p);
 void Remove_Tarefa_Lista(Processo * p);
 void Verifica_Tarefa_Lista( Processo * p);
 void Chama_Politica_Escolhida(int politic, Processo* pAux, Processo* Prontos);
-void BubbleSort(int vetor[], int tamanho);
-void bolha(int n, int *v);
+void BubbleSort_Maior_Menor(int vetor[], int tamanho);
+void BubbleSort_Menor_Maior(int n, int *v);
 
 int main(void)
 {
@@ -652,7 +652,7 @@ int Aloca_Processo_WorstFit(Processo * p)
     Processo * temp = p;
     int flag = 0;
     
-    BubbleSort(vetorPart, 5);
+    BubbleSort_Maior_Menor(vetorPart, 5);
     
     for( i = 0; i < sizeof(vetorPart)/sizeof(int); i++){
         if(flag == 0){
@@ -703,7 +703,7 @@ int Aloca_Processo_BestFit(Processo * p){
     Processo * temp = p;
     int flag = 0;
     
-    bolha(5,vetorPart);
+    BubbleSort_Menor_Maior(5,vetorPart);
     printf("%d",vetorPart[0]);
     for( i = 0; i < sizeof(vetorPart)/sizeof(int); i++){
         if(flag == 0){
@@ -749,7 +749,7 @@ int Aloca_Processo_BestFit(Processo * p){
 }
 
 
-void bolha (int n, int* v){
+void BubbleSort_Menor_Maior (int n, int* v){
     int fim,i;
     for (fim=n-1; fim>0; fim--)
         for (i=0; i<fim; i++)
@@ -759,7 +759,7 @@ void bolha (int n, int* v){
                 v[i+1] = temp;
             }
 }
-void BubbleSort(int vetor[], int tamanho){
+void BubbleSort_Maior_Menor(int vetor[], int tamanho){
     int aux, i, j;
     
     for(j = tamanho - 1; j <= 1; j--)
