@@ -51,6 +51,9 @@ int tamPart3 = sizeof(part3)/sizeof(int);
 int tamPart4 = sizeof(part4)/sizeof(int);
 int tamPart5 = sizeof(part5)/sizeof(int);
 
+int vetorPart[5];
+
+
 int qtd_processos = 0;
 int TEMPO_TOTAL = 0;
 int next= 0; // variavel para a politica next fit;
@@ -73,6 +76,8 @@ void Desaloca_Processo(Processo * p);
 void Remove_Tarefa_Lista(Processo * p);
 void Verifica_Tarefa_Lista( Processo * p);
 void Chama_Politica_Escolhida(int politic, Processo* pAux, Processo* Prontos);
+void BubbleSort(int vetor[], int tamanho);
+void bolha(int n, int *v);
 
 int main(void)
 {
@@ -82,6 +87,13 @@ int main(void)
     Prontos = Cria_Processo_Lista(Prontos);
     pAux = Prontos;
     Inicializa_Memoria();
+    
+    vetorPart[0] = tamPart1;
+    vetorPart[1] = tamPart2;
+    vetorPart[2] = tamPart3;
+    vetorPart[3] = tamPart4;
+    vetorPart[4] = tamPart5;
+
     printf("\n\n===========================================================================================\n\n");
     printf("Escolha uma das Politicas de Alocacao de Memoria:\n\n\t1-FIRST FIT\n\t2-NEXT FIT\n\t3-BEST FIT\n\t4-WORST FIT\n\n");
    
@@ -220,7 +232,7 @@ Tarefa * Cria_Tarefa_Lista(Tarefa * Task, char * tag, int time)
 void Inicializa_Memoria (void)
 {
     int i;
-    for(i=0;i<16;i++){
+    for(i = 0; i < 16; i++){
         memoria_global[i]=0;
     }
     for ( i = 0; i < 8; i++ ){
@@ -240,22 +252,6 @@ int Aloca_Processo_FirstFit(Processo * p)
     Processo * temp=p;
     int i, posicoes_livres=0;
     
-    // posicoes livres consecutivas na memoria
-    
-//    for(i=0;i<16;i++){
-//        if(memoria_global[i] == 0)//conta posições livres consecutivas na memoria
-//            posicoes_livres++;
-//        else // caso a posição não esteja livre zera o contador e continua buscando por uma região consecutiva de memoria
-//            posicoes_livres = 0;
-//        
-//        if(posicoes_livres == temp->mem_requerida){ // se ha n posicoes livres consecutivas na memoria, suficientes para alocar o programa, as coloca nas posicoes respectivas na memoria
-//            while(posicoes_livres){
-//                memoria_global[i+1-posicoes_livres] = temp->num_processo;
-//                posicoes_livres--;
-//            }
-//            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
-//            return 0;
-//        }
         if (part1[0] == 0 && tamPart1 >= temp->mem_requerida){
             for( i = 0; i < temp->mem_requerida; i++){
                 part1[i] = temp->num_processo;
@@ -290,45 +286,51 @@ int Aloca_Processo_NextFit(Processo* p){
     Processo* temp = p;
     int i, posicoes_livres = 0;
     
-    
-    for(i=next;i<16;i++){
-        if(memoria_global[i] == 0)//quando posicoes livres = mem_requerida
-            posicoes_livres++;
-        else // se programanao possuir posicoes livre consecutivas = mem_requerida, continua buscando na memoria
-            posicoes_livres = 0;
-        
-        if(posicoes_livres == temp->mem_requerida){// se ha n posicoes livres consecutivas na memoria, suficientes para alocar o programa, as coloca nas posicoes respectivas na memoria
-            next = i+1;
-            if(next > 15){ // se chegou no fim da memoria precisa voltar a buscar desde e o inicio
-                i = 0;
-                
-                next = 0;
-            }
-            
-            
-            
-            while(posicoes_livres){
-                memoria_global[i+1-posicoes_livres] = temp->num_processo;
-                posicoes_livres--;
+    while(next != 0){
+        if (part1[0] == 0 && tamPart1 >= temp->mem_requerida && next == 1){
+            next = 2;
+            for( i = 0; i < temp->mem_requerida; i++){
+                part1[i] = temp->num_processo;
             }
             Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
             return 0;
+        }else if(part2[0] == 0 && tamPart2 >= temp->mem_requerida && next == 2){
+            next = 3;
+            for( i = 0; i < temp->mem_requerida; i++){
+                part2[i] = temp->num_processo;
+            }
+            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+            return 0;
+        }else if(part3[0] == 0 && tamPart3 >= temp->mem_requerida && next == 3){
+            next = 4;
+            for( i = 0; i < temp->mem_requerida; i++){
+                part3[i] = temp->num_processo;
+            }
+            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+            return 0;
+        }else if(part4[0] == 0 && tamPart4 >= temp->mem_requerida && next == 4){
+            next = 5;
+            for( i = 0; i < temp->mem_requerida; i++){
+                part4[i] = temp->num_processo;
+            }
+            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+            return 0;
+        }else if(part5[0] == 0 && tamPart5 >= temp->mem_requerida && next == 5){
+            next = 1;
+            for( i = 0; i < temp->mem_requerida; i++){
+                part5[i] = temp->num_processo;
+            }
+            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+            return 0;
+        }else{
+            // se nao houver espaco continuo em memoria para alocar o programa, realocacao dos espacos
+            next = 0;
         }
-        
-        
     }
-    
-    
-    
-    // se nao houver espaco continuo em memoria para alocar o programa, realocacao dos espacos
-    next = i+1;
-    if(next > 15){ // se chegou no fim da memoria precisa voltar a buscar desde e o inicio
-        i = 0;
-        
-        next = 0;
-    }
+    next = 1;
     return -1;
-    
+
+
     
     
 }
@@ -417,10 +419,6 @@ void Desaloca_Processo(Processo * p)
         temp=temp->prox;
     }
     
-//    for(i=0; i<16; i++){
-//        if(memoria_global[i] == proc_mais_antigo)
-//            memoria_global[i] = 0;
-//    }
     if (part1[0] == proc_mais_antigo){
         for( i = 0; i < tamPart1; i++){
             part1[i] = 0;
@@ -651,88 +649,129 @@ int Aloca_Processo_WorstFit(Processo * p)
 {
     
     int i, j;
-    int endereco[16];// guarda o endereco de memoria inicial de um bloco de memoria
-    int espaco[16];// guarda o espaco total do bloco de memoria associado ao endereco inicial
-    int idx_wf; // indice do vetor de espaco aonde esta o best fit
-    int worstfit; // variavel auxiliar
+    Processo * temp = p;
+    int flag = 0;
     
-    for(i=0, j=0; i<16; i++){
-        if(memoria_global[i]==0){
-            endereco[j]=i;
-            espaco[j]=0;
-            while(memoria_global[i]==0 && i<16){
-                i++;
-                espaco[j] = espaco[j] + 1;
+    BubbleSort(vetorPart, 5);
+    
+    for( i = 0; i < sizeof(vetorPart)/sizeof(int); i++){
+        if(flag == 0){
+            if (part1[0] == 0 && tamPart1 >= temp->mem_requerida && tamPart1 >= vetorPart[i]){
+                printf("aqui");
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part1[i] = temp->num_processo;
+                }
+                flag = 1;
+                
+            }else if(part2[0] == 0 && tamPart2 >= temp->mem_requerida && tamPart2 >= vetorPart[i]){
+                
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part2[i] = temp->num_processo;
+                }
+                flag = 1;
+                
+            }else if(part3[0] == 0 && tamPart3 >= temp->mem_requerida && tamPart3 >= vetorPart[i]){
+                
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part3[i] = temp->num_processo;
+                }
+                flag = 1;
+                
+            }else if(part4[0] == 0 && tamPart4 >= temp->mem_requerida && tamPart4 >= vetorPart[i]){
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part4[i] = temp->num_processo;
+                }
+                flag = 1;
+                
+            }else if(part5[0] == 0 && tamPart5 >= temp->mem_requerida && tamPart5 >= vetorPart[i]){
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part5[i] = temp->num_processo;
+                }
+                flag = 1;
             }
-            j++;
         }
     }
     
-    if(j==0) return -1;
-    
-    worstfit = espaco[0];
-    idx_wf = 0;
-    for(i=1; i<j; i++)
-    {
-        if(espaco[i]>worstfit && espaco[i] >= p->mem_requerida){
-            worstfit = espaco[i];
-            idx_wf = i;
-        }
-    }
-    if(espaco[idx_wf]<p->mem_requerida)
-        return -1;
-    
-    for(i=0; i<p->mem_requerida; i++){
-        memoria_global[endereco[idx_wf]] = p->num_processo;
-        endereco[idx_wf] = endereco [idx_wf]+1;
-    }
-    
-    Transfere_Prontos2Execucao(Execucao, Prontos, p->num_processo);
-    
+    Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
     return 0;
+
 }
 
-int Aloca_Processo_BestFit(Processo * p)
-{
+int Aloca_Processo_BestFit(Processo * p){
     
     int i, j;
-    int endereco[16];// guarda o endereco de memoria inicial de um bloco de memoria
-    int espaco[16];// guarda o espaco total do bloco de memoria associado ao endereco inicial
-    int idx_bf; // indice do vetor de espaco aonde esta o best fit
-    int bestfit; // variavel auxiliar
+    Processo * temp = p;
+    int flag = 0;
     
-    for(i=0, j=0; i<16; i++){
-        if(memoria_global[i]==0){
-            endereco[j]=i;
-            espaco[j]=0;
-            while(memoria_global[i]==0 && i<16){
-                i++;
-                espaco[j] = espaco[j] + 1;
+    bolha(5,vetorPart);
+    printf("%d",vetorPart[0]);
+    for( i = 0; i < sizeof(vetorPart)/sizeof(int); i++){
+        if(flag == 0){
+            if (part1[0] == 0 && tamPart1 >= temp->mem_requerida && tamPart1 <= vetorPart[i]){
+                
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part1[i] = temp->num_processo;
+                }
+                flag = 1;
+                
+            }else if(part2[0] == 0 && tamPart2 >= temp->mem_requerida && tamPart2 <= vetorPart[i]){
+                
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part2[i] = temp->num_processo;
+                }
+                flag = 1;
+                
+            }else if(part3[0] == 0 && tamPart3 >= temp->mem_requerida && tamPart3 <= vetorPart[i]){
+                
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part3[i] = temp->num_processo;
+                }
+                flag = 1;
+                
+            }else if(part4[0] == 0 && tamPart4 >= temp->mem_requerida && tamPart4 <= vetorPart[i]){
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part4[i] = temp->num_processo;
+                }
+                flag = 1;
+                
+            }else if(part5[0] == 0 && tamPart5 >= temp->mem_requerida && tamPart5 <= vetorPart[i]){
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part5[i] = temp->num_processo;
+                }
+                flag = 1;
             }
-            j++;
         }
+
     }
-    
-    if(j==0) return -1;
-    
-    bestfit = espaco[0];
-    idx_bf = 0;
-    for(i=1; i<j; i++)
-    {
-        if(espaco[i]<bestfit && espaco[i] >= p->mem_requerida){
-            bestfit = espaco[i];
-            idx_bf = i;
-        }
-    }
-    if(espaco[idx_bf]<p->mem_requerida)
-        return -1;
-    
-    for(i=0; i<p->mem_requerida; i++){
-        memoria_global[endereco[idx_bf]] = p->num_processo;
-        endereco[idx_bf] = endereco [idx_bf]+1;
-    }
-    
-    Transfere_Prontos2Execucao(Execucao, Prontos, p->num_processo);
-    
+    Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
     return 0;
+
+}
+
+
+void bolha (int n, int* v){
+    int fim,i;
+    for (fim=n-1; fim>0; fim--)
+        for (i=0; i<fim; i++)
+            if (v[i]>v[i+1]) {
+                int temp = v[i]; /* troca */
+                v[i] = v[i+1];
+                v[i+1] = temp;
+            }
+}
+void BubbleSort(int vetor[], int tamanho){
+    int aux, i, j;
+    
+    for(j = tamanho - 1; j <= 1; j--)
+    {
+        for(i = 0; i > j; i++)
+        {
+            if(vetor[i] > vetor[i+1])
+            {
+                aux=vetor[i];
+                vetor[i]=vetor[i+1];
+                vetor[i+1]=aux;
+            } 
+        } 
+    } 
 }
