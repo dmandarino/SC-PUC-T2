@@ -72,6 +72,7 @@ void Transfere_Prontos2Execucao(Processo * p1, Processo * p2, int num_proc);
 void Desaloca_Processo(Processo * p);
 void Remove_Tarefa_Lista(Processo * p);
 void Verifica_Tarefa_Lista( Processo * p);
+void Chama_Politica_Escolhida(int politic, Processo* pAux, Processo* Prontos);
 
 int main(void)
 {
@@ -92,49 +93,8 @@ int main(void)
     while(qtd_processos != 0){
         if(TEMPO_TOTAL% 10 == 0){
             printf("\n\n");
-            if(politic == 1){
-                if(strcmp(pAux->t->tag, "exec")==0)
-                    while(Aloca_Processo_FirstFit(Prontos)== -1)
-                        Desaloca_Processo( Execucao);
-                else if(strcmp(pAux->t->tag, "io")==0)
-                    Transfere_Prontos2Bloq( Bloqueados, Prontos, pAux->num_processo);
-                pAux = Prontos;
-            }
-            else if(politic == 2){
-                if(strcmp(pAux->t->tag, "exec")==0){
-                    while(Aloca_Processo_NextFit(Prontos)== -1){
-                        if(Aloca_Processo_NextFit(Prontos)!=-1)
-                            break;
-                        Desaloca_Processo( Execucao);
-                    }
-                }
-                else if(strcmp(pAux->t->tag, "io")==0){
-                    Transfere_Prontos2Bloq( Bloqueados, Prontos, pAux->num_processo);
-                }
-                pAux = Prontos;
-            }
-            else if(politic == 3){
-                if(strcmp(pAux->t->tag, "exec")==0)
-                    while(Aloca_Processo_BestFit(Prontos)== -1)
-                        Desaloca_Processo( Execucao);
-                
-                else if(strcmp(pAux->t->tag, "io")==0)
-                    Transfere_Prontos2Bloq( Bloqueados, Prontos, pAux->num_processo);
-                
-                pAux = Prontos;
-            }
             
-            else if(politic == 4){
-                if(strcmp(pAux->t->tag, "exec")==0)
-                    while(Aloca_Processo_WorstFit(Prontos)== -1)
-                        Desaloca_Processo( Execucao);
-                
-                else if(strcmp(pAux->t->tag, "io")==0)
-                    Transfere_Prontos2Bloq( Bloqueados, Prontos, pAux->num_processo);
-                
-                pAux = Prontos;
-            }
-            
+            Chama_Politica_Escolhida(politic, pAux, Prontos);
 
             printf("=============================Uso de Processos na Memoria:=================================\n\n\tMemoria: ");
             for( i = 0; i < 8; i++)  printf("[%d]", part1[i]);
@@ -172,6 +132,40 @@ int main(void)
 }
 
 
+void Chama_Politica_Escolhida(int politic, Processo* pAux, Processo* Prontos)
+{
+    if(strcmp(pAux->t->tag, "exec")==0){
+        
+        switch (politic)
+        {
+            case 1:
+                while(Aloca_Processo_FirstFit(Prontos)== -1)
+                    Desaloca_Processo( Execucao);
+                break;
+                
+            case 2:
+                while(Aloca_Processo_NextFit(Prontos)== -1){
+                    if(Aloca_Processo_NextFit(Prontos)!=-1)
+                        break;
+                    Desaloca_Processo( Execucao);
+                }
+                break;
+                
+            case 3:
+                while(Aloca_Processo_BestFit(Prontos)== -1)
+                    Desaloca_Processo( Execucao);
+                break;
+        
+            default:
+                while(Aloca_Processo_WorstFit(Prontos)== -1)
+                    Desaloca_Processo( Execucao);
+        }
+    } else if(strcmp(pAux->t->tag, "io")==0)
+        Transfere_Prontos2Bloq( Bloqueados, Prontos, pAux->num_processo);
+    pAux = Prontos;
+}
+
+
 Processo * Cria_Processo_Lista(Processo * p)
 {
     int proc, mem, ent, time;
@@ -192,8 +186,6 @@ Processo * Cria_Processo_Lista(Processo * p)
         
         fscanf(f, "%d %d", &proc, &mem);
         fscanf(f, "%d", &ent);
-        
-        printf("%d", proc);
         
         novo = (Processo *) malloc (sizeof(Processo));
         novo->tempo_permanencia = 0;
