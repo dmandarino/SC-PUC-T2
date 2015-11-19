@@ -36,8 +36,6 @@ typedef struct processo{
 Processo * Execucao;
 Processo * Bloqueados;
 Processo * Prontos;
-int memoria_global[16] ; //vetor que indica como está memória
-int qtd_memoria_livre = 16; //quantidade de memoria livre
 
 int part1[8];
 int part2[4];
@@ -61,17 +59,17 @@ int next= 0; // variavel para a politica next fit;
 Processo * Cria_Processo_Lista(Processo * p);
 Tarefa * Cria_Tarefa_Lista(Tarefa * Task, char * tag, int time);
 void Inicializa_Memoria (void);
-int Aloca_Processo_FirstFit(Processo * p);
-int Aloca_Processo_NextFit(Processo* p);
-int Aloca_Processo_BestFit(Processo * p);
-int Aloca_Processo_WorstFit(Processo * p);
+int Perpara_FirstFit(Processo * p);
+int Prepara_NextFit(Processo* p);
+int Prepara_BestFit(Processo * p);
+int Prepara_WorstFit(Processo * p);
 void Tempo_Processos(Processo * p);
 void Reduz_Tempo_Execucao(Processo * p);
 void Reduz_Tempo_Bloqueio(Processo * p);
-void Transfere_Bloq2Prontos(Processo * p1, Processo * p2, int num_proc);
-void Transfere_Prontos2Bloq(Processo * p1, Processo * p2, int num_proc);
-void Transfere_Execucao2Prontos(Processo * p1, Processo * p2, int num_proc);
-void Transfere_Prontos2Execucao(Processo * p1, Processo * p2, int num_proc);
+void Bloq_Para_Prontos(Processo * p1, Processo * p2, int num_proc);
+void Prontos_Para_Bloq(Processo * p1, Processo * p2, int num_proc);
+void Execucao_Para_Prontos(Processo * p1, Processo * p2, int num_proc);
+void Prontos_Para_Execucao(Processo * p1, Processo * p2, int num_proc);
 void Desaloca_Processo(Processo * p);
 void Remove_Tarefa_Lista(Processo * p);
 void Verifica_Tarefa_Lista( Processo * p);
@@ -101,7 +99,7 @@ int main(void)
     scanf("%d", &politic);
     printf("\n\n================================COMECANDO OS PROCESSOS=====================================");
     
-    //escolher politica de alocacao de memoria
+    // Tomada de Decisao A partir da Politica Escolhida
     while(qtd_processos != 0){
         if(TEMPO_TOTAL% 10 == 0){
             printf("\n\n");
@@ -151,29 +149,29 @@ void Chama_Politica_Escolhida(int politic, Processo* pAux, Processo* Prontos)
         switch (politic)
         {
             case 1:
-                while(Aloca_Processo_FirstFit(Prontos)== -1)
+                while(Perpara_FirstFit(Prontos)== -1)
                     Desaloca_Processo( Execucao);
                 break;
                 
             case 2:
-                while(Aloca_Processo_NextFit(Prontos)== -1){
-                    if(Aloca_Processo_NextFit(Prontos)!=-1)
+                while(Prepara_NextFit(Prontos)== -1){
+                    if(Prepara_NextFit(Prontos)!=-1)
                         break;
                     Desaloca_Processo( Execucao);
                 }
                 break;
                 
             case 3:
-                while(Aloca_Processo_BestFit(Prontos)== -1)
+                while(Prepara_BestFit(Prontos)== -1)
                     Desaloca_Processo( Execucao);
                 break;
         
             default:
-                while(Aloca_Processo_WorstFit(Prontos)== -1)
+                while(Prepara_WorstFit(Prontos)== -1)
                     Desaloca_Processo( Execucao);
         }
     } else if(strcmp(pAux->t->tag, "io")==0)
-        Transfere_Prontos2Bloq( Bloqueados, Prontos, pAux->num_processo);
+        Prontos_Para_Bloq( Bloqueados, Prontos, pAux->num_processo);
     pAux = Prontos;
 }
 
@@ -227,14 +225,9 @@ Tarefa * Cria_Tarefa_Lista(Tarefa * Task, char * tag, int time)
     return temp;
 }
 
-
-
 void Inicializa_Memoria (void)
 {
     int i;
-    for(i = 0; i < 16; i++){
-        memoria_global[i]=0;
-    }
     for ( i = 0; i < 8; i++ ){
         if( i < 2 ) part3[i] = 0;
         if( i < 4 ) part2[i] = 0;
@@ -245,12 +238,10 @@ void Inicializa_Memoria (void)
     return;
 }
 
-
-//first fit
-int Aloca_Processo_FirstFit(Processo * p)
+int Perpara_FirstFit(Processo * p)
 {
     Processo * temp=p;
-    int i, posicoes_livres=0;
+    int i;
     
         if (part1[0] == 0 && tamPart1 >= temp->mem_requerida){
             for( i = 0; i < temp->mem_requerida; i++){
@@ -273,18 +264,16 @@ int Aloca_Processo_FirstFit(Processo * p)
                 part5[i] = temp->num_processo;
             }
         }else{
-            // se nao houver espaco continuo em memoria para alocar o programa, realocacao dos espacos
             return -1;
         }
-        Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+        Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
         return 0;
-//    }
-    
 }
-int Aloca_Processo_NextFit(Processo* p){
+
+int Prepara_NextFit(Processo* p){
     
     Processo* temp = p;
-    int i, posicoes_livres = 0;
+    int i;
     
     while(next != 0){
         if (part1[0] == 0 && tamPart1 >= temp->mem_requerida && next == 1){
@@ -292,35 +281,35 @@ int Aloca_Processo_NextFit(Processo* p){
             for( i = 0; i < temp->mem_requerida; i++){
                 part1[i] = temp->num_processo;
             }
-            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+            Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
             return 0;
         }else if(part2[0] == 0 && tamPart2 >= temp->mem_requerida && next == 2){
             next = 3;
             for( i = 0; i < temp->mem_requerida; i++){
                 part2[i] = temp->num_processo;
             }
-            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+            Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
             return 0;
         }else if(part3[0] == 0 && tamPart3 >= temp->mem_requerida && next == 3){
             next = 4;
             for( i = 0; i < temp->mem_requerida; i++){
                 part3[i] = temp->num_processo;
             }
-            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+            Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
             return 0;
         }else if(part4[0] == 0 && tamPart4 >= temp->mem_requerida && next == 4){
             next = 5;
             for( i = 0; i < temp->mem_requerida; i++){
                 part4[i] = temp->num_processo;
             }
-            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+            Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
             return 0;
         }else if(part5[0] == 0 && tamPart5 >= temp->mem_requerida && next == 5){
             next = 1;
             for( i = 0; i < temp->mem_requerida; i++){
                 part5[i] = temp->num_processo;
             }
-            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+            Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
             return 0;
         }else{
             // se nao houver espaco continuo em memoria para alocar o programa, realocacao dos espacos
@@ -353,10 +342,7 @@ void Reduz_Tempo_Execucao(Processo * p)
         temp->t->time = temp->t->time - 1;
         if(temp->tempo_permanencia == 10 || temp->t->time == 0){
             temp->tempo_permanencia = 0;
-//            for(i=0; i<16; i++){
-//                if(memoria_global[i] == temp->num_processo)
-//                    memoria_global[i]=0;
-//            }
+            
             if (part1[0] == temp->num_processo){
                 for( i = 0; i < temp->mem_requerida; i++){
                     part1[i] = 0;
@@ -380,7 +366,7 @@ void Reduz_Tempo_Execucao(Processo * p)
             }
             if(temp->t->time == 0)
                 Remove_Tarefa_Lista(temp);
-            Transfere_Execucao2Prontos( Prontos, Execucao, temp->num_processo);
+            Execucao_Para_Prontos( Prontos, Execucao, temp->num_processo);
         }
         temp = temp->prox;
     }
@@ -394,7 +380,7 @@ void Reduz_Tempo_Bloqueio(Processo * p)
         temp->t->time = temp->t->time - 1;
         if(temp->t->time == 0){
             Remove_Tarefa_Lista(temp);
-            Transfere_Bloq2Prontos( Prontos, Bloqueados, temp->num_processo);
+            Bloq_Para_Prontos( Prontos, Bloqueados, temp->num_processo);
         }
         temp = temp->prox;
     }
@@ -440,12 +426,12 @@ void Desaloca_Processo(Processo * p)
             part5[i] = 0;
         }
     }
-    Transfere_Execucao2Prontos( Prontos, Execucao, proc_mais_antigo);
+    Execucao_Para_Prontos( Prontos, Execucao, proc_mais_antigo);
     
     return;
 }
 
-void Transfere_Bloq2Prontos(Processo * p1, Processo * p2, int num_proc)
+void Bloq_Para_Prontos(Processo * p1, Processo * p2, int num_proc)
 {
     Processo * temp1 = p2;
     Processo * temp2 = p2->prox;
@@ -485,7 +471,7 @@ void Transfere_Bloq2Prontos(Processo * p1, Processo * p2, int num_proc)
     return;
 }
 
-void Transfere_Prontos2Bloq(Processo * p1, Processo * p2, int num_proc)
+void Prontos_Para_Bloq(Processo * p1, Processo * p2, int num_proc)
 {
     Processo * temp1 = p2;
     Processo * temp2 = p2->prox;
@@ -527,7 +513,7 @@ void Transfere_Prontos2Bloq(Processo * p1, Processo * p2, int num_proc)
     return;
 }
 
-void Transfere_Execucao2Prontos(Processo * p1, Processo * p2, int num_proc)
+void Execucao_Para_Prontos(Processo * p1, Processo * p2, int num_proc)
 {
     Processo * temp1 = p2;
     Processo * temp2 = p2->prox;
@@ -569,7 +555,7 @@ void Transfere_Execucao2Prontos(Processo * p1, Processo * p2, int num_proc)
     return;
 }
 
-void Transfere_Prontos2Execucao(Processo * p1, Processo * p2, int num_proc)
+void Prontos_Para_Execucao(Processo * p1, Processo * p2, int num_proc)
 {
     Processo * temp1 = p2;
     Processo * temp2 = p2->prox;
@@ -645,10 +631,10 @@ void Verifica_Tarefa_Lista( Processo * p)
 }
 
 
-int Aloca_Processo_WorstFit(Processo * p)
+int Prepara_WorstFit(Processo * p)
 {
     
-    int i, j;
+    int i;
     Processo * temp = p;
     int flag = 0;
     
@@ -692,14 +678,14 @@ int Aloca_Processo_WorstFit(Processo * p)
         }
     }
     
-    Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+    Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
     return 0;
 
 }
 
-int Aloca_Processo_BestFit(Processo * p){
+int Prepara_BestFit(Processo * p){
     
-    int i, j;
+    int i;
     Processo * temp = p;
     int flag = 0;
     
@@ -743,7 +729,7 @@ int Aloca_Processo_BestFit(Processo * p){
         }
 
     }
-    Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+    Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
     return 0;
 
 }
