@@ -128,11 +128,11 @@ int main(void)
             printf("\n\n");
             
             
-            printf("\nProcessos em Execucao\n\n");
+            printf("\n--Processos em Execucao\n\n");
             Tempo_Processos( Execucao);
-            printf("\nProcessos Prontos\n\n");
+            printf("\n--Processos Prontos\n\n");
             Tempo_Processos(Prontos);
-            printf("\nProcessos Bloqueados\n\n");
+            printf("\n--Processos Bloqueados\n\n");
             Tempo_Processos( Bloqueados);
         }
         
@@ -171,7 +171,8 @@ Processo * Cria_Processo_Lista(Processo * p)
     qtd_processos = qtdProcessosTxt;
     
     while(qtdProcessosTxt > 0){
-        fscanf(f, "%d %d %d", &proc, &mem, &ent);
+        fscanf(f, "%d %d", &proc, &mem);
+        fscanf(f, "%d", &ent);
         
         novo = (Processo *) malloc (sizeof(Processo));
         novo->tempo_permanencia = 0;
@@ -290,7 +291,7 @@ void Tempo_Processos(Processo * p)
 {
     Processo * temp = p;
     while(temp != NULL){
-        printf("\tnumero processo:%d  tempo restante:%d\n", temp->num_processo, temp->t->time);
+        printf("\tnumero processo: %d  tempo restante: %d\n", temp->num_processo, temp->t->time);
         temp = temp->prox;
     }
     return;
