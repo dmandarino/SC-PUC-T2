@@ -38,6 +38,19 @@ Processo * Bloqueados;
 Processo * Prontos;
 int memoria_global[16] ; //vetor que indica como está memória
 int qtd_memoria_livre = 16; //quantidade de memoria livre
+
+int part1[8];
+int part2[4];
+int part3[2];
+int part4[1];
+int part5[1];
+
+int tamPart1 = sizeof(part1)/sizeof(int);
+int tamPart2 = sizeof(part2)/sizeof(int);
+int tamPart3 = sizeof(part3)/sizeof(int);
+int tamPart4 = sizeof(part4)/sizeof(int);
+int tamPart5 = sizeof(part5)/sizeof(int);
+
 int qtd_processos = 0;
 int TEMPO_TOTAL = 0;
 int next= 0; // variavel para a politica next fit;
@@ -123,8 +136,12 @@ int main(void)
             }
             
             printf("\n\n=============================Uso de Processos na Memoria:=================================");
-            for(i=0; i<16; i++)
-                printf("[%d]", memoria_global[i]);
+            for( i = 0; i < 8; i++)  printf("[%d]", part1[i]);
+            for( i = 0; i < 4; i++)  printf("[%d]", part2[i]);
+            for( i = 0; i < 2; i++)  printf("[%d]", part3[i]);
+            printf("[%d]", part4[0]);
+            printf("[%d]", part5[0]);
+
             printf("\n\n");
             
             
@@ -209,6 +226,13 @@ void Inicializa_Memoria (void)
     for(i=0;i<16;i++){
         memoria_global[i]=0;
     }
+    for ( i = 0; i < 8; i++ ){
+        if( i < 2 ) part3[i] = 0;
+        if( i < 4 ) part2[i] = 0;
+        part1[i] = 0;
+    }
+    part4[0] = 0;
+    part5[0] = 0;
     return;
 }
 
@@ -221,23 +245,48 @@ int Aloca_Processo_FirstFit(Processo * p)
     
     // posicoes livres consecutivas na memoria
     
-    for(i=0;i<16;i++){
-        if(memoria_global[i] == 0)//conta posições livres consecutivas na memoria
-            posicoes_livres++;
-        else // caso a posição não esteja livre zera o contador e continua buscando por uma região consecutiva de memoria
-            posicoes_livres = 0;
-        
-        if(posicoes_livres == temp->mem_requerida){ // se ha n posicoes livres consecutivas na memoria, suficientes para alocar o programa, as coloca nas posicoes respectivas na memoria
-            while(posicoes_livres){
-                memoria_global[i+1-posicoes_livres] = temp->num_processo;
-                posicoes_livres--;
+//    for(i=0;i<16;i++){
+//        if(memoria_global[i] == 0)//conta posições livres consecutivas na memoria
+//            posicoes_livres++;
+//        else // caso a posição não esteja livre zera o contador e continua buscando por uma região consecutiva de memoria
+//            posicoes_livres = 0;
+//        
+//        if(posicoes_livres == temp->mem_requerida){ // se ha n posicoes livres consecutivas na memoria, suficientes para alocar o programa, as coloca nas posicoes respectivas na memoria
+//            while(posicoes_livres){
+//                memoria_global[i+1-posicoes_livres] = temp->num_processo;
+//                posicoes_livres--;
+//            }
+//            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+//            return 0;
+//        }
+        if (part1[0] == 0 && tamPart1 >= temp->mem_requerida){
+            for( i = 0; i < temp->mem_requerida; i++){
+                part1[i] = temp->num_processo;
             }
-            Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
-            return 0;
+        }else if(part2[0] == 0 && tamPart2 >= temp->mem_requerida){
+            for( i = 0; i < temp->mem_requerida; i++){
+                part2[i] = temp->num_processo;
+            }
+        }else if(part3[0] == 0 && tamPart3 >= temp->mem_requerida){
+            for( i = 0; i < temp->mem_requerida; i++){
+                part3[i] = temp->num_processo;
+            }
+        }else if(part4[0] == 0 && tamPart4 >= temp->mem_requerida){
+            for( i = 0; i < temp->mem_requerida; i++){
+                part4[i] = temp->num_processo;
+            }
+        }else if(part5[0] == 0 && tamPart5 >= temp->mem_requerida){
+            for( i = 0; i < temp->mem_requerida; i++){
+                part5[i] = temp->num_processo;
+            }
+        }else{
+            // se nao houver espaco continuo em memoria para alocar o programa, realocacao dos espacos
+            return -1;
         }
-    }
-    // se nao houver espaco continuo em memoria para alocar o programa, realocacao dos espacos
-    return -1;
+        Transfere_Prontos2Execucao( Execucao, Prontos,temp->num_processo);
+        return 0;
+//    }
+    
 }
 int Aloca_Processo_NextFit(Processo* p){
     
@@ -305,9 +354,30 @@ void Reduz_Tempo_Execucao(Processo * p)
         temp->t->time = temp->t->time - 1;
         if(temp->tempo_permanencia == 10 || temp->t->time == 0){
             temp->tempo_permanencia = 0;
-            for(i=0; i<16; i++){
-                if(memoria_global[i] == temp->num_processo)
-                    memoria_global[i]=0;
+//            for(i=0; i<16; i++){
+//                if(memoria_global[i] == temp->num_processo)
+//                    memoria_global[i]=0;
+//            }
+            if (part1[0] == temp->num_processo){
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part1[i] = 0;
+                }
+            }else if(part2[0] == temp->num_processo){
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part2[i] = 0;
+                }
+            }else if(part3[0] == temp->num_processo){
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part3[i] = 0;
+                }
+            }else if(part4[0] == temp->num_processo){
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part4[i] = 0;
+                }
+            }else if(part5[0] == temp->num_processo){
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part5[i] = 0;
+                }
             }
             if(temp->t->time == 0)
                 Remove_Tarefa_Lista(temp);
@@ -350,9 +420,30 @@ void Desaloca_Processo(Processo * p)
         temp=temp->prox;
     }
     
-    for(i=0; i<16; i++){
-        if(memoria_global[i] == proc_mais_antigo)
-            memoria_global[i] = 0;
+//    for(i=0; i<16; i++){
+//        if(memoria_global[i] == proc_mais_antigo)
+//            memoria_global[i] = 0;
+//    }
+    if (part1[0] == proc_mais_antigo){
+        for( i = 0; i < tamPart1; i++){
+            part1[i] = 0;
+        }
+    }else if(part2[0] == proc_mais_antigo){
+        for( i = 0; i < tamPart2; i++){
+            part2[i] = 0;
+        }
+    }else if(part3[0] == proc_mais_antigo){
+        for( i = 0; i < tamPart3; i++){
+            part3[i] = 0;
+        }
+    }else if(part4[0] == proc_mais_antigo){
+        for( i = 0; i < tamPart4; i++){
+            part4[i] = 0;
+        }
+    }else if(part5[0] == proc_mais_antigo){
+        for( i = 0; i < tamPart5; i++){
+            part5[i] = 0;
+        }
     }
     Transfere_Execucao2Prontos( Prontos, Execucao, proc_mais_antigo);
     
