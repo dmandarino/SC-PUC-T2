@@ -1,6 +1,6 @@
 //
 //  SCT2.c
-//  
+//
 //
 //  Created by Douglas Mandarino on 11/18/15.
 //
@@ -91,10 +91,10 @@ int main(void)
     vetorPart[2] = tamPart3;
     vetorPart[3] = tamPart4;
     vetorPart[4] = tamPart5;
-
+    
     printf("\n\n===========================================================================================\n\n");
     printf("Escolha uma das Politicas de Alocacao de Memoria:\n\n\t1-FIRST FIT\n\t2-NEXT FIT\n\t3-BEST FIT\n\t4-WORST FIT\n\n");
-   
+    
     printf("\tDigite a Politica Escolhida: ");
     scanf("%d", &politic);
     printf("\n\n================================COMECANDO OS PROCESSOS=====================================");
@@ -104,15 +104,17 @@ int main(void)
         if(TEMPO_TOTAL% 10 == 0){
             printf("\n\n");
             
-            Chama_Politica_Escolhida(politic, pAux, Prontos);
-
             printf("=============================Uso de Processos na Memoria:=================================\n\n\tMemoria: ");
             for( i = 0; i < 8; i++)  printf("[%d]", part1[i]);
+            printf("--");
             for( i = 0; i < 4; i++)  printf("[%d]", part2[i]);
+            printf("--");
             for( i = 0; i < 2; i++)  printf("[%d]", part3[i]);
+            printf("--");
             printf("[%d]", part4[0]);
+            printf("--");
             printf("[%d]", part5[0]);
-
+            
             printf("\n\n");
             
             
@@ -123,11 +125,13 @@ int main(void)
             printf("\n--Processos Bloqueados\n\n");
             Tempo_Processos( Bloqueados);
         }
-        
+     
+        Chama_Politica_Escolhida(politic, pAux, Prontos);
+
         Reduz_Tempo_Execucao( Execucao);
         Reduz_Tempo_Bloqueio( Bloqueados);
         Verifica_Tarefa_Lista(Prontos);
-       
+        
         TEMPO_TOTAL++;
         pAux = Prontos;
         if(Prontos == NULL && Execucao == NULL && Bloqueados == NULL){
@@ -165,7 +169,7 @@ void Chama_Politica_Escolhida(int politic, Processo* pAux, Processo* Prontos)
                 while(Prepara_BestFit(Prontos)== -1)
                     Desaloca_Processo( Execucao);
                 break;
-        
+                
             default:
                 while(Prepara_WorstFit(Prontos)== -1)
                     Desaloca_Processo( Execucao);
@@ -210,7 +214,7 @@ Processo * Cria_Processo_Lista(Processo * p)
             ent--;
         }
         p=novo;
-
+        
         qtdProcessosTxt--;
     }
     return p;
@@ -242,32 +246,35 @@ int Perpara_FirstFit(Processo * p)
 {
     Processo * temp=p;
     int i;
-    
-        if (part1[0] == 0 && tamPart1 >= temp->mem_requerida){
-            for( i = 0; i < temp->mem_requerida; i++){
-                part1[i] = temp->num_processo;
-            }
-        }else if(part2[0] == 0 && tamPart2 >= temp->mem_requerida){
-            for( i = 0; i < temp->mem_requerida; i++){
-                part2[i] = temp->num_processo;
-            }
-        }else if(part3[0] == 0 && tamPart3 >= temp->mem_requerida){
-            for( i = 0; i < temp->mem_requerida; i++){
-                part3[i] = temp->num_processo;
-            }
-        }else if(part4[0] == 0 && tamPart4 >= temp->mem_requerida){
-            for( i = 0; i < temp->mem_requerida; i++){
-                part4[i] = temp->num_processo;
-            }
-        }else if(part5[0] == 0 && tamPart5 >= temp->mem_requerida){
-            for( i = 0; i < temp->mem_requerida; i++){
-                part5[i] = temp->num_processo;
-            }
-        }else{
-            return -1;
+    if(part1[0] == temp->num_processo || part2[0] == temp->num_processo || part3[0] == temp->num_processo || part4[0] == temp->num_processo || part5[0] == temp->num_processo){
+        Desaloca_Processo(p);
+    }
+    if (part1[0] == 0 && tamPart1 >= temp->mem_requerida){
+        for( i = 0; i < temp->mem_requerida; i++){
+            part1[i] = temp->num_processo;
         }
-        Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
-        return 0;
+    }else if(part2[0] == 0 && tamPart2 >= temp->mem_requerida){
+        for( i = 0; i < temp->mem_requerida; i++){
+            part2[i] = temp->num_processo;
+        }
+    }else if(part3[0] == 0 && tamPart3 >= temp->mem_requerida){
+        for( i = 0; i < temp->mem_requerida; i++){
+            part3[i] = temp->num_processo;
+        }
+    }else if(part4[0] == 0 && tamPart4 >= temp->mem_requerida){
+        for( i = 0; i < temp->mem_requerida; i++){
+            part4[i] = temp->num_processo;
+        }
+    }else if(part5[0] == 0 && tamPart5 >= temp->mem_requerida){
+        for( i = 0; i < temp->mem_requerida; i++){
+            part5[i] = temp->num_processo;
+        }
+    }else{
+        return -1;
+    }
+    
+    Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
+    return 0;
 }
 
 int Prepara_NextFit(Processo* p){
@@ -318,8 +325,8 @@ int Prepara_NextFit(Processo* p){
     }
     next = 1;
     return -1;
-
-
+    
+    
     
     
 }
@@ -519,7 +526,9 @@ void Execucao_Para_Prontos(Processo * p1, Processo * p2, int num_proc)
     Processo * temp2 = p2->prox;
     Processo * p_start_lista = p1;
     
+    
     if(temp1->num_processo == num_proc){
+       
         if(p1 == NULL){
             temp1->prox = p1;
             p2 = temp2;
@@ -527,19 +536,22 @@ void Execucao_Para_Prontos(Processo * p1, Processo * p2, int num_proc)
             Prontos = temp1;
             return;
         }
-        while(p1->prox != NULL)
+        while(p1->prox != NULL){
             p1=p1->prox;
+        }
+        
         
         temp1->prox = p1->prox;
         p1->prox = temp1;
         p1 = p_start_lista;
-        
         p2 = temp2;
         Execucao = p2;
+        
         return;
     }
     
     while(temp2 != NULL){
+
         if(temp2->num_processo == num_proc){
             temp1->prox = temp2->prox;
             temp2->prox = p1;
@@ -559,39 +571,43 @@ void Prontos_Para_Execucao(Processo * p1, Processo * p2, int num_proc)
 {
     Processo * temp1 = p2;
     Processo * temp2 = p2->prox;
-    
-    if(temp1->num_processo == num_proc){
-        if(p1 == NULL){
-            temp1->prox = p1;
+            printf("FORA IF");
+    if(Execucao == NULL){
+                printf("DENTRO IF");
+        if(temp1->num_processo == num_proc){
+            if(p1 == NULL){
+                temp1->prox = p1;
+                p2 = temp2;
+                Prontos = p2;
+                Execucao = temp1;
+                return;
+            }
+            while(p1->prox != NULL)
+                p1=p1->prox;
+            
+            temp1->prox = p1->prox;
+            p1->prox = temp1;
+            
             p2 = temp2;
             Prontos = p2;
-            Execucao = temp1;
             return;
         }
-        while(p1->prox != NULL)
-            p1=p1->prox;
         
-        temp1->prox = p1->prox;
-        p1->prox = temp1;
-        
-        p2 = temp2;
-        Prontos = p2;
-        return;
+        while(temp2 != NULL){
+            if(temp2->num_processo == num_proc){
+                temp1->prox = temp2->prox;
+                temp2->prox = p1;
+                p1 = temp2;
+                Execucao = p1;
+                return;
+            }
+            else{
+                temp1->prox = temp2;
+                temp2 = temp2->prox;
+            }
+        }
     }
     
-    while(temp2 != NULL){
-        if(temp2->num_processo == num_proc){
-            temp1->prox = temp2->prox;
-            temp2->prox = p1;
-            p1 = temp2;
-            Execucao = p1;
-            return;
-        }
-        else{
-            temp1->prox = temp2;
-            temp2 = temp2->prox;
-        }
-    }
     return;
 }
 
@@ -680,7 +696,7 @@ int Prepara_WorstFit(Processo * p)
     
     Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
     return 0;
-
+    
 }
 
 int Prepara_BestFit(Processo * p){
@@ -727,11 +743,11 @@ int Prepara_BestFit(Processo * p){
                 flag = 1;
             }
         }
-
+        
     }
     Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
     return 0;
-
+    
 }
 
 
