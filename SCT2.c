@@ -104,8 +104,7 @@ int main(void)
     while(qtd_processos != 0){
         if(TEMPO_TOTAL% 5 == 0){
             printf("\n\n");
-            
-            
+
             printf("=============================Uso de Processos na Memoria:=================================\n\n\tMemoria: ");
             for( i = 0; i < 8; i++)  printf("[%d]", part1[i]);
             printf("--");
@@ -537,7 +536,9 @@ void Execucao_Para_Prontos(Processo * p1, Processo * p2, int num_proc)
     Processo * temp2 = p2->prox;
     Processo * p_start_lista = p1;
     
+    
     if(temp1->num_processo == num_proc){
+       
         if(p1 == NULL){
             temp1->prox = p1;
             p2 = temp2;
@@ -545,19 +546,22 @@ void Execucao_Para_Prontos(Processo * p1, Processo * p2, int num_proc)
             Prontos = temp1;
             return;
         }
-        while(p1->prox != NULL)
+        while(p1->prox != NULL){
             p1=p1->prox;
+        }
+        
         
         temp1->prox = p1->prox;
         p1->prox = temp1;
         p1 = p_start_lista;
-        
         p2 = temp2;
         Execucao = p2;
+        
         return;
     }
     
     while(temp2 != NULL){
+
         if(temp2->num_processo == num_proc){
             temp1->prox = temp2->prox;
             temp2->prox = p1;
@@ -577,6 +581,7 @@ void Prontos_Para_Execucao(Processo * p1, Processo * p2, int num_proc)
 {
     Processo * temp1 = p2;
     Processo * temp2 = p2->prox;
+
     if(Execucao == NULL){
         if(temp1->num_processo == num_proc){
             if(p1 == NULL){
