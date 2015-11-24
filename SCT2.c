@@ -104,7 +104,8 @@ int main(void)
     while(qtd_processos != 0){
         if(TEMPO_TOTAL% 5 == 0){
             printf("\n\n");
-
+            
+            
             printf("=============================Uso de Processos na Memoria:=================================\n\n\tMemoria: ");
             for( i = 0; i < 8; i++)  printf("[%d]", part1[i]);
             printf("--");
@@ -288,44 +289,48 @@ int Prepara_NextFit(Processo* p){
     int i;
     
     while(next != 0){
-        if (part1[0] == 0 && tamPart1 >= temp->mem_requerida && next == 1){
-            next = 2;
-            for( i = 0; i < temp->mem_requerida; i++){
-                part1[i] = temp->num_processo;
+        if(temp->alocado == 0){
+            temp->alocado = 1;
+            if (part1[0] == 0 && tamPart1 >= temp->mem_requerida && next == 1){
+                next = 2;
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part1[i] = temp->num_processo;
+                }
+                Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
+                return 0;
+            }else if(part2[0] == 0 && tamPart2 >= temp->mem_requerida && next == 2){
+                next = 3;
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part2[i] = temp->num_processo;
+                }
+                Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
+                return 0;
+            }else if(part3[0] == 0 && tamPart3 >= temp->mem_requerida && next == 3){
+                next = 4;
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part3[i] = temp->num_processo;
+                }
+                Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
+                return 0;
+            }else if(part4[0] == 0 && tamPart4 >= temp->mem_requerida && next == 4){
+                next = 5;
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part4[i] = temp->num_processo;
+                }
+                Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
+                return 0;
+                
+            }else if(part5[0] == 0 && tamPart5 >= temp->mem_requerida && next == 5){
+                next = 1;
+                for( i = 0; i < temp->mem_requerida; i++){
+                    part5[i] = temp->num_processo;
+                }
+                Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
+                return 0;
+            }else{
+                // se nao houver espaco continuo em memoria para alocar o programa, realocacao dos espacos
+                next = 0;
             }
-            Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
-            return 0;
-        }else if(part2[0] == 0 && tamPart2 >= temp->mem_requerida && next == 2){
-            next = 3;
-            for( i = 0; i < temp->mem_requerida; i++){
-                part2[i] = temp->num_processo;
-            }
-            Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
-            return 0;
-        }else if(part3[0] == 0 && tamPart3 >= temp->mem_requerida && next == 3){
-            next = 4;
-            for( i = 0; i < temp->mem_requerida; i++){
-                part3[i] = temp->num_processo;
-            }
-            Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
-            return 0;
-        }else if(part4[0] == 0 && tamPart4 >= temp->mem_requerida && next == 4){
-            next = 5;
-            for( i = 0; i < temp->mem_requerida; i++){
-                part4[i] = temp->num_processo;
-            }
-            Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
-            return 0;
-        }else if(part5[0] == 0 && tamPart5 >= temp->mem_requerida && next == 5){
-            next = 1;
-            for( i = 0; i < temp->mem_requerida; i++){
-                part5[i] = temp->num_processo;
-            }
-            Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
-            return 0;
-        }else{
-            // se nao houver espaco continuo em memoria para alocar o programa, realocacao dos espacos
-            next = 0;
         }
     }
     next = 1;
@@ -536,9 +541,7 @@ void Execucao_Para_Prontos(Processo * p1, Processo * p2, int num_proc)
     Processo * temp2 = p2->prox;
     Processo * p_start_lista = p1;
     
-    
     if(temp1->num_processo == num_proc){
-       
         if(p1 == NULL){
             temp1->prox = p1;
             p2 = temp2;
@@ -546,22 +549,19 @@ void Execucao_Para_Prontos(Processo * p1, Processo * p2, int num_proc)
             Prontos = temp1;
             return;
         }
-        while(p1->prox != NULL){
+        while(p1->prox != NULL)
             p1=p1->prox;
-        }
-        
         
         temp1->prox = p1->prox;
         p1->prox = temp1;
         p1 = p_start_lista;
+        
         p2 = temp2;
         Execucao = p2;
-        
         return;
     }
     
     while(temp2 != NULL){
-
         if(temp2->num_processo == num_proc){
             temp1->prox = temp2->prox;
             temp2->prox = p1;
@@ -581,7 +581,6 @@ void Prontos_Para_Execucao(Processo * p1, Processo * p2, int num_proc)
 {
     Processo * temp1 = p2;
     Processo * temp2 = p2->prox;
-
     if(Execucao == NULL){
         if(temp1->num_processo == num_proc){
             if(p1 == NULL){
@@ -666,12 +665,13 @@ int Prepara_WorstFit(Processo * p)
     BubbleSort_Maior_Menor(vetorPart, 5);
     
     for( i = 0; i < sizeof(vetorPart)/sizeof(int); i++){
-        if(flag == 0){
+        if(flag == 0 && temp->alocado == 0){
             if (part1[0] == 0 && tamPart1 >= temp->mem_requerida && tamPart1 >= vetorPart[i]){
                 for( i = 0; i < temp->mem_requerida; i++){
                     part1[i] = temp->num_processo;
                 }
                 flag = 1;
+                temp->alocado = 1;
                 
             }else if(part2[0] == 0 && tamPart2 >= temp->mem_requerida && tamPart2 >= vetorPart[i]){
                 
@@ -679,6 +679,7 @@ int Prepara_WorstFit(Processo * p)
                     part2[i] = temp->num_processo;
                 }
                 flag = 1;
+                temp->alocado = 1;
                 
             }else if(part3[0] == 0 && tamPart3 >= temp->mem_requerida && tamPart3 >= vetorPart[i]){
                 
@@ -686,18 +687,21 @@ int Prepara_WorstFit(Processo * p)
                     part3[i] = temp->num_processo;
                 }
                 flag = 1;
+                temp->alocado = 1;
                 
             }else if(part4[0] == 0 && tamPart4 >= temp->mem_requerida && tamPart4 >= vetorPart[i]){
                 for( i = 0; i < temp->mem_requerida; i++){
                     part4[i] = temp->num_processo;
                 }
                 flag = 1;
+                temp->alocado = 1;
                 
             }else if(part5[0] == 0 && tamPart5 >= temp->mem_requerida && tamPart5 >= vetorPart[i]){
                 for( i = 0; i < temp->mem_requerida; i++){
                     part5[i] = temp->num_processo;
                 }
                 flag = 1;
+                temp->alocado = 1;
             }
         }
     }
@@ -716,35 +720,37 @@ int Prepara_BestFit(Processo * p){
     BubbleSort_Menor_Maior(5,vetorPart);
     printf("%d",vetorPart[0]);
     for( i = 0; i < sizeof(vetorPart)/sizeof(int); i++){
-        if(flag == 0){
+        if(flag == 0 && temp->alocado == 0){
             if (part1[0] == 0 && tamPart1 >= temp->mem_requerida && tamPart1 <= vetorPart[i]){
-                
+                temp->alocado = 1;
                 for( i = 0; i < temp->mem_requerida; i++){
                     part1[i] = temp->num_processo;
                 }
                 flag = 1;
                 
             }else if(part2[0] == 0 && tamPart2 >= temp->mem_requerida && tamPart2 <= vetorPart[i]){
-                
+                temp->alocado = 1;
                 for( i = 0; i < temp->mem_requerida; i++){
                     part2[i] = temp->num_processo;
                 }
                 flag = 1;
                 
             }else if(part3[0] == 0 && tamPart3 >= temp->mem_requerida && tamPart3 <= vetorPart[i]){
-                
+                temp->alocado = 1;
                 for( i = 0; i < temp->mem_requerida; i++){
                     part3[i] = temp->num_processo;
                 }
                 flag = 1;
                 
             }else if(part4[0] == 0 && tamPart4 >= temp->mem_requerida && tamPart4 <= vetorPart[i]){
+                temp->alocado = 1;
                 for( i = 0; i < temp->mem_requerida; i++){
                     part4[i] = temp->num_processo;
                 }
                 flag = 1;
                 
             }else if(part5[0] == 0 && tamPart5 >= temp->mem_requerida && tamPart5 <= vetorPart[i]){
+                temp->alocado = 1;
                 for( i = 0; i < temp->mem_requerida; i++){
                     part5[i] = temp->num_processo;
                 }
