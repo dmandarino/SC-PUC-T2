@@ -1,6 +1,6 @@
 //
 //  SCT2.c
-//  
+//
 //
 //  Created by Douglas Mandarino on 11/18/15.
 //
@@ -26,6 +26,7 @@ typedef struct processo{
     int num_processo;
     int mem_requerida;
     int entradas;
+    int alocado;
     Tarefa * t;
     
     struct processo * prox;
@@ -91,28 +92,31 @@ int main(void)
     vetorPart[2] = tamPart3;
     vetorPart[3] = tamPart4;
     vetorPart[4] = tamPart5;
-
+    
     printf("\n\n===========================================================================================\n\n");
     printf("Escolha uma das Politicas de Alocacao de Memoria:\n\n\t1-FIRST FIT\n\t2-NEXT FIT\n\t3-BEST FIT\n\t4-WORST FIT\n\n");
-   
+    
     printf("\tDigite a Politica Escolhida: ");
     scanf("%d", &politic);
     printf("\n\n================================COMECANDO OS PROCESSOS=====================================");
     
     // Tomada de Decisao A partir da Politica Escolhida
     while(qtd_processos != 0){
-        if(TEMPO_TOTAL% 10 == 0){
+        if(TEMPO_TOTAL% 5 == 0){
             printf("\n\n");
             
-            Chama_Politica_Escolhida(politic, pAux, Prontos);
-
+            
             printf("=============================Uso de Processos na Memoria:=================================\n\n\tMemoria: ");
             for( i = 0; i < 8; i++)  printf("[%d]", part1[i]);
+            printf("--");
             for( i = 0; i < 4; i++)  printf("[%d]", part2[i]);
+            printf("--");
             for( i = 0; i < 2; i++)  printf("[%d]", part3[i]);
+            printf("--");
             printf("[%d]", part4[0]);
+            printf("--");
             printf("[%d]", part5[0]);
-
+            
             printf("\n\n");
             
             
@@ -124,10 +128,12 @@ int main(void)
             Tempo_Processos( Bloqueados);
         }
         
+        Chama_Politica_Escolhida(politic, pAux, Prontos);
+        
         Reduz_Tempo_Execucao( Execucao);
         Reduz_Tempo_Bloqueio( Bloqueados);
         Verifica_Tarefa_Lista(Prontos);
-       
+        
         TEMPO_TOTAL++;
         pAux = Prontos;
         if(Prontos == NULL && Execucao == NULL && Bloqueados == NULL){
@@ -144,8 +150,7 @@ int main(void)
 
 void Chama_Politica_Escolhida(int politic, Processo* pAux, Processo* Prontos)
 {
-    if(strcmp(pAux->t->tag, "exec")==0){
-        
+    if(pAux != NULL && strcmp(pAux->t->tag, "exec") == 0){
         switch (politic)
         {
             case 1:
@@ -165,14 +170,16 @@ void Chama_Politica_Escolhida(int politic, Processo* pAux, Processo* Prontos)
                 while(Prepara_BestFit(Prontos)== -1)
                     Desaloca_Processo( Execucao);
                 break;
-        
+                
             default:
                 while(Prepara_WorstFit(Prontos)== -1)
                     Desaloca_Processo( Execucao);
         }
-    } else if(strcmp(pAux->t->tag, "io")==0)
+    } else if(pAux != NULL && strcmp(pAux->t->tag, "io")==0)
         Prontos_Para_Bloq( Bloqueados, Prontos, pAux->num_processo);
+    
     pAux = Prontos;
+    
 }
 
 
@@ -203,6 +210,7 @@ Processo * Cria_Processo_Lista(Processo * p)
         novo->mem_requerida = mem;
         novo->entradas = ent;
         novo->prox = p;
+        novo->alocado = 0;
         novo->t=NULL;
         while(ent > 0){
             fscanf(f, " %s %d", tag, &time);
@@ -210,7 +218,7 @@ Processo * Cria_Processo_Lista(Processo * p)
             ent--;
         }
         p=novo;
-
+        
         qtdProcessosTxt--;
     }
     return p;
@@ -243,6 +251,8 @@ int Perpara_FirstFit(Processo * p)
     Processo * temp=p;
     int i;
     
+    if(temp->alocado == 0){
+        temp->alocado = 1;
         if (part1[0] == 0 && tamPart1 >= temp->mem_requerida){
             for( i = 0; i < temp->mem_requerida; i++){
                 part1[i] = temp->num_processo;
@@ -264,10 +274,13 @@ int Perpara_FirstFit(Processo * p)
                 part5[i] = temp->num_processo;
             }
         }else{
+            temp->alocado = 0;
             return -1;
         }
-        Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
-        return 0;
+    }
+    Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
+    return 0;
+    
 }
 
 int Prepara_NextFit(Processo* p){
@@ -318,8 +331,8 @@ int Prepara_NextFit(Processo* p){
     }
     next = 1;
     return -1;
-
-
+    
+    
     
     
 }
@@ -340,10 +353,10 @@ void Reduz_Tempo_Execucao(Processo * p)
     while( temp!= NULL){
         temp->tempo_permanencia = temp->tempo_permanencia + 1;
         temp->t->time = temp->t->time - 1;
-        if(temp->tempo_permanencia == 10 || temp->t->time == 0){
+        if(temp->t->time == 0){
             temp->tempo_permanencia = 0;
             
-            if (part1[0] == temp->num_processo){
+            if (part1[0] == temp->num_processo ){
                 for( i = 0; i < temp->mem_requerida; i++){
                     part1[i] = 0;
                 }
@@ -364,8 +377,13 @@ void Reduz_Tempo_Execucao(Processo * p)
                     part5[i] = 0;
                 }
             }
+            
             if(temp->t->time == 0)
                 Remove_Tarefa_Lista(temp);
+            Execucao_Para_Prontos( Prontos, Execucao, temp->num_processo);
+        }
+        if(temp->tempo_permanencia == 10){
+            temp->tempo_permanencia = 0;
             Execucao_Para_Prontos( Prontos, Execucao, temp->num_processo);
         }
         temp = temp->prox;
@@ -559,39 +577,41 @@ void Prontos_Para_Execucao(Processo * p1, Processo * p2, int num_proc)
 {
     Processo * temp1 = p2;
     Processo * temp2 = p2->prox;
-    
-    if(temp1->num_processo == num_proc){
-        if(p1 == NULL){
-            temp1->prox = p1;
+    if(Execucao == NULL){
+        if(temp1->num_processo == num_proc){
+            if(p1 == NULL){
+                temp1->prox = p1;
+                p2 = temp2;
+                Prontos = p2;
+                Execucao = temp1;
+                return;
+            }
+            while(p1->prox != NULL)
+                p1=p1->prox;
+            
+            temp1->prox = p1->prox;
+            p1->prox = temp1;
+            
             p2 = temp2;
             Prontos = p2;
-            Execucao = temp1;
             return;
         }
-        while(p1->prox != NULL)
-            p1=p1->prox;
         
-        temp1->prox = p1->prox;
-        p1->prox = temp1;
-        
-        p2 = temp2;
-        Prontos = p2;
-        return;
+        while(temp2 != NULL){
+            if(temp2->num_processo == num_proc){
+                temp1->prox = temp2->prox;
+                temp2->prox = p1;
+                p1 = temp2;
+                Execucao = p1;
+                return;
+            }
+            else{
+                temp1->prox = temp2;
+                temp2 = temp2->prox;
+            }
+        }
     }
     
-    while(temp2 != NULL){
-        if(temp2->num_processo == num_proc){
-            temp1->prox = temp2->prox;
-            temp2->prox = p1;
-            p1 = temp2;
-            Execucao = p1;
-            return;
-        }
-        else{
-            temp1->prox = temp2;
-            temp2 = temp2->prox;
-        }
-    }
     return;
 }
 
@@ -643,7 +663,6 @@ int Prepara_WorstFit(Processo * p)
     for( i = 0; i < sizeof(vetorPart)/sizeof(int); i++){
         if(flag == 0){
             if (part1[0] == 0 && tamPart1 >= temp->mem_requerida && tamPart1 >= vetorPart[i]){
-                printf("aqui");
                 for( i = 0; i < temp->mem_requerida; i++){
                     part1[i] = temp->num_processo;
                 }
@@ -680,7 +699,7 @@ int Prepara_WorstFit(Processo * p)
     
     Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
     return 0;
-
+    
 }
 
 int Prepara_BestFit(Processo * p){
@@ -727,11 +746,11 @@ int Prepara_BestFit(Processo * p){
                 flag = 1;
             }
         }
-
+        
     }
     Prontos_Para_Execucao( Execucao, Prontos,temp->num_processo);
     return 0;
-
+    
 }
 
 
@@ -757,7 +776,7 @@ void BubbleSort_Maior_Menor(int vetor[], int tamanho){
                 aux=vetor[i];
                 vetor[i]=vetor[i+1];
                 vetor[i+1]=aux;
-            } 
-        } 
-    } 
+            }
+        }
+    }
 }
